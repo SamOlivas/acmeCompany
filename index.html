@@ -1,0 +1,140 @@
+<html>
+  <head>
+<style>
+  #buttonBox {
+    display:flex;
+  }
+  table, th, td {
+    border: 1px solid black;
+  }
+  #navBar {
+    display: flex;
+    justify-content: space-around;
+    background-color:lightgray;
+  }
+</style>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js'></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/react-router-dom/5.0.0/react-router-dom.js'></script>
+  </head>
+  <body>
+    <div id='root'></div>
+    <script type='text/babel' defer>
+    const { HashRouter, Route, NavLink, Link } = ReactRouterDOM;
+
+      class App extends React.Component {
+        constructor() {
+          super()
+          this.state = {
+            loading: true,
+            currentPage: 'https://acme-users-api-rev.herokuapp.com/api/users/'
+          }
+        };
+        async componentDidMount() {
+          try {
+            let reply = await fetch(this.state.currentPage)
+            let data = await reply.json()
+            this.setState({
+              count: data.count,
+              users: data.users,
+              loading: false,
+            })
+          } catch (err) {
+            console.error('Still Loading')
+          }
+        };
+
+        render() {
+          return (
+            <HashRouter>
+              <h3>Acme Company</h3>
+              <hr/>
+              <div id='navBar'>
+                <NavLink to='/'> Home </NavLink>
+                <NavLink to='/users'> Users </NavLink>
+              </div>
+              <Route exact path='/' component={Home} />
+              <Route
+              path='/users'
+              render= {(prop)=> <Users state={this.state} />}
+              />
+            </HashRouter>
+          )
+      };
+    };
+
+    class Nav extends React.Component {
+      constructor() {
+        super()
+      };
+      render() {
+        let currentPage = 1
+        return (
+          <div>
+            <h4>{this.props.count} results. Page {'undefined'} of {this.props.count/50}</h4>
+            <div id='buttonBox'>
+              <button>First</button>
+              <button>Previous</button>
+              <button>{currentPage}</button>
+              <button>Next</button>
+              <button>Last</button>
+
+            </div>
+          </div>
+        )
+      };
+    };
+
+    class Home extends React.Component {
+      render() {
+        return(
+          <div> Home Page </div>
+        )
+      };
+    };
+
+    class Users extends React.Component {
+      constructor(props) {
+        super(props)
+      };
+      render(props) {
+        const users = this.props.state.users
+        return (
+          <div>
+            <Nav count={this.props.state.count}/>
+            <table>
+              <thead>
+                <tr>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Middle Name</th>
+                  <th>Email</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user)=>
+                  <tr key={user.id}>
+                    <td>{user.firstName}</td>
+                    <td>{user.lastName}</td>
+                    <td>{user.middleName}</td>
+                    <td>{user.email}</td>
+                  </tr>
+                  )}
+              </tbody>
+            </table>
+          </div>
+        )
+      };
+    };
+
+    class Pager extends React.Component {
+    };
+
+
+      const root = document.querySelector('#root');
+      ReactDOM.render(<App />, root);
+    </script>
+  </body>
+</html>
