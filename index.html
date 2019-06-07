@@ -1,6 +1,10 @@
 <html>
   <head>
 <style>
+  #banner {
+    display: flex;
+    justify-content: center
+  }
   #buttonBox {
     display:flex;
   }
@@ -29,8 +33,10 @@
           super()
           this.state = {
             loading: true,
-            currentPage: 'https://acme-users-api-rev.herokuapp.com/api/users/'
+            pageNumber: 1,
+            currentPage: 'https://acme-users-api-rev.herokuapp.com/api/users/',
           }
+          this.navigation = this.navigation.bind(this)
         };
         async componentDidMount() {
           try {
@@ -45,11 +51,13 @@
             console.error('Still Loading')
           }
         };
-
+        navigation(ev) {
+          console.log('Run Forrest, Runnnnn!')
+        };
         render() {
           return (
             <HashRouter>
-              <h3>Acme Company</h3>
+              <h3 id='banner'>Acme Company</h3>
               <hr/>
               <div id='navBar'>
                 <NavLink to='/'> Home </NavLink>
@@ -58,7 +66,7 @@
               <Route exact path='/' component={Home} />
               <Route
               path='/users'
-              render= {(prop)=> <Users state={this.state} />}
+              render= {(prop)=> <Users nav={this.navigation} state={this.state} />}
               />
             </HashRouter>
           )
@@ -70,17 +78,18 @@
         super()
       };
       render() {
-        let currentPage = 1
+        console.log(this.props)
+        let pageNumber = this.props.state.pageNumber
+        let count = this.props.state.count
         return (
           <div>
-            <h4>{this.props.count} results. Page {'undefined'} of {this.props.count/50}</h4>
+            <h4>{count} results found. Page {pageNumber} of {Math.ceil(count/50)}</h4>
             <div id='buttonBox'>
               <button>First</button>
               <button>Previous</button>
-              <button>{currentPage}</button>
+              <button>{pageNumber}</button>
               <button>Next</button>
               <button>Last</button>
-
             </div>
           </div>
         )
@@ -103,7 +112,7 @@
         const users = this.props.state.users
         return (
           <div>
-            <Nav count={this.props.state.count}/>
+            <Nav state={this.props.state}/>
             <table>
               <thead>
                 <tr>
